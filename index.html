@@ -1,0 +1,53 @@
+<!doctype html5>
+<!-- FireRain - all right reserverd... -->
+
+<html>
+	<head>
+		<style>
+			body {
+				font-family : Monospace;
+			}
+
+			#playground {
+				margin : auto;
+			}
+
+		</style>
+	</head>
+	<body id='bdy' onkeydown="return EventProcessor.bodyKeydown(event)">
+		<table id="playground"> </table>
+		<table id="kbod">
+			<tr>
+				<td>
+				</td>
+				<td id="up" onclick="EventProcessor.KbodClicked('up');">
+					U
+				</td>
+				<td>
+				</td>
+			</tr>
+			<tr>
+				<td id="left" onclick="EventProcessor.KbodClicked('left');">
+					L
+				</td>
+				<td>
+				</td>
+				<td id="right" onclick="EventProcessor.KbodClicked('right');">
+					R
+				</td>
+			</tr>
+			<tr>
+				<td>
+				</td>
+				<td id="down" onclick="EventProcessor.KbodClicked('down');">
+					D
+				</td>
+				<td>
+				</td>
+			</tr>
+		</table>
+		<script type="text/javascript" src="snake.js"> </script>
+		<p id="test"> Test Moudle :  </p>
+	</body>
+</html>
+
