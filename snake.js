@@ -145,8 +145,8 @@ output.creatPlayground = function () {
 		for (cell = 0; cell <= 9; cell ++) {
 			tablec = tabler.insertCell(cell);
 			//tablec.innerHTML = "&nbsp;";
-			tablec.style.width = "30px";
-			tablec.style.height = "30px";
+			//tablec.style.width = "30px";
+			//tablec.style.height = "30px";
 		}
 	}
 	//output.alg();
