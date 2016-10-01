@@ -1,0 +1,46 @@
+/* interface.css */
+
+#_Setting_{
+	text-align : center;
+}
+
+#_SubTitle_ {
+	text-align : center;
+	font-weight : bold;
+}
+
+#_Title_ {
+	text-align : center;
+	background-color :#000;
+	color : #fff;
+}
+
+#_Config_ {
+	text-align : center;
+}
+
+#_Start_ {
+	text-align : center;
+}
+
+#_SnakeContainer_ td {
+	width : 20px;
+	height : 20px;
+	background-color : #00f;
+}
+
+#_SnakeContainer_ {
+	margin : auto;
+}
+
+#_DirectionCtrler_ td {
+	width : 40px;
+	height :40px;
+	background-color : #AAA;
+	text-align : center;
+}
+
+#_DirectionCtrler_ {
+	margin : auto;
+}
+
