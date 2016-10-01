@@ -41,7 +41,7 @@
 		</div> <hr/>
 		<script type="text/javascript" src="snake.js"> </script>
 		<script type="text/javascript">
-			document.onkeydown = function(e){GameMachine.eventKeyDown(e)};
+			document.body.onkeydown = function(e){GameMachine.eventKeyDown(e)};
 			_SnakeContainer_.onclick = function(){GameMachine.eventPause()};
 			_DirUp_.onclick = function(){GameMachine.eventChangeDirection(2)};
 			_DirDown_.onclick = function(){GameMachine.eventChangeDirection(4)};
