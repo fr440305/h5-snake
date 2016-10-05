@@ -11,18 +11,29 @@ var GameMachine = {
 			//PARA - null;
 			//RETN - BOOL;
 			//DESP - set food_position randomly.
-			var i;
-			var food_rank = Math.floor(Math.random() * (100 - this.snake_shape.length));
-			var snake_shape_array = [];
-			for (i = 0; i < 100; i++)
-				snake_shape_array[i] = 0;
-			for (i = 0; i < this.snake_shape.length; i++) {
-				snake_shape_array[((this.snake_shape[i] & 0xF0) >> 4) * 10 + (this.snake_shape[i] & 0xF)] = 1;
-			}
-			for (i = 0; i < food_rank; i++) {
-				if (snake_shape_array[i] === 1) food_rank ++;
-			}
-			this.food_position = (food_rank % 10) + (Math.floor(food_rank / 10) << 4);
+			var existIn = function (element, array) {
+				var i;
+				for (i = 0; i < array.length; i++) {
+          				if (array[i] === element) {
+						return true;
+					}   
+				}   
+				return false;
+			};  
+			var row, col;
+			var position;
+			var food_domain = []; 
+			var food_domain_id;
+			for (row = 0; row < 10; row ++) {
+				for (col = 0; col < 10; col ++) {
+					position = (row << 4) + col;
+					if (!existIn (position, this.snake_shape)) {
+						food_domain.push (position) ;
+					}   
+				}   
+			}   
+			food_domain_id = Math.floor(Math.random() * (food_domain.length));
+			this.food_position = food_domain[food_domain_id];
 			return (true);
 		},
 		getInfo : function (context) { "--------------------------------------------------------DONE!";
