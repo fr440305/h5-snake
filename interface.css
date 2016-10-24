@@ -1,5 +1,10 @@
 /* interface.css */
-
+* {
+	color:#aac;
+}
+body {
+	background-color:#024;
+}
 #_Setting_{
 	text-align : center;
 }
@@ -12,7 +17,6 @@
 #_Title_ {
 	text-align : center;
 	background-color :#000;
-	color : #fff;
 }
 
 #_Config_ {
@@ -26,7 +30,7 @@
 #_SnakeContainer_ td {
 	width : 25px;
 	height : 25px;
-	background-color : #00f;
+	background-color : #058;
 }
 
 #_SnakeContainer_ {
@@ -36,7 +40,7 @@
 #_DirectionCtrler_ td {
 	width : 40px;
 	height :40px;
-	background-color : #AAA;
+	background-color : #058;
 	text-align : center;
 }
 
