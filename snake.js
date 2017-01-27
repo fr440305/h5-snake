@@ -7,7 +7,7 @@ var GameMachine = {
 		snake_shape : [],    //[RRRRCCCC(head), RRRRCCCC, ... , RRRRCCCC(tail)]
 		food_position : 0,   //RRRRCCCC
 		snake_status : 0x0100,    //including pause, direction, and score.000P DDDD SSSS SSSS;
-		putFood : function () { "--------------------------------------------------------ALMOST_DONE(BUG NEED TO BE FIXED)!";
+		putFood : function () {
 			//PARA - null;
 			//RETN - BOOL;
 			//DESP - set food_position randomly.
@@ -36,7 +36,7 @@ var GameMachine = {
 			this.food_position = food_domain[food_domain_id];
 			return (true);
 		},
-		getInfo : function (context) { "--------------------------------------------------------DONE!";
+		getInfo : function (context) {
 			//PARA - context = {"foodposi"||"layout"||"pause"||"direction"||"score"};
 			//RETN - what you get.
 			//DESP - a query function.
@@ -62,7 +62,7 @@ var GameMachine = {
 				return ((this.snake_status & 0xF000) === 0) ? false : true;
 			}
 		},
-		changeSnakeDirection : function (new_direction) { "------------------------------------------ALMOST_DONE!";
+		changeSnakeDirection : function (new_direction) {
 			//PARA - number::new_direction = {1000b||0100b||0010b||0001b};
 			//PARA - DESP - 1000b = left, 0100b = down, 0010b = up, 0001b = right;
 			//RETN - bool = {true || false};
@@ -86,7 +86,7 @@ var GameMachine = {
 			/* should use bit-operation to simplifly the code.*/
 			return (false);
 		},
-		snakeBorn : function () { "---------------------------------------------------------------------DONE!";
+		snakeBorn : function () {
 			//PARA - null,
 			//RETN - BOOL ; usually be true;
 			//DESP - initial the snake, including it's shape and it's status;
@@ -110,7 +110,7 @@ var GameMachine = {
 				return (false); // restarted.
 			}
 		},
-		snakeMove : function () { "---------------------------------------------------------------------DONE!";
+		snakeMove : function () {
 			//PARA - null,
 			//RETN - number = {001b || 000b};
 			//RETN - DESP - 1 = normal, 0 = dead;
@@ -172,7 +172,7 @@ var GameMachine = {
 	},
 	difficulty : 5,
 	game_timer_id : undefined,
-	gameInitor : function (this_class_name) { "-------------------------------------------------------------------------DONE!";
+	gameInitor : function (this_class_name) {
 		if (this.game_timer_id !== undefined) {
 			clearInterval(this.game_timer_id);
 			this.game_timer_id = undefined;
@@ -185,7 +185,7 @@ var GameMachine = {
 		}
 		return (0);
 	},
-	gameIterator : function () { "------------------------------------------------------------------------DONE!";
+	gameIterator : function () {
 		var that = this.GluttonousSnake;
 		if (that.snakeMove() === 0) this.gameDestructor();
 		this.layoutEngine (that.getInfo("layout"), that.getInfo("score"), that.getInfo("foodposi"));
@@ -246,7 +246,7 @@ var GameMachine = {
 			_Start_.innerHTML = "<br/>If you wanna pause, click the grid.";
 		}
 	},
-	layoutEngine : function (snake_shape, snake_score, food_position) { "--------------------------------------------DONE!";
+	layoutEngine : function (snake_shape, snake_score, food_position) {
 		/* draw snake_shape */
 		if (_SnakeContainer_ === undefined) return (false);
 		for (var i = 0; i <= 9; i++) {
