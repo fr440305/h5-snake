@@ -42,13 +42,13 @@
 		</div> <hr/>
 		<script type="text/javascript" src="snake.js"> </script>
 		<script type="text/javascript">
-			document.body.onkeydown = function(e){GameMachine.eventKeyDown(e)};
-			_SnakeContainer_.onclick = function(){GameMachine.eventPause()};
-			_DirUp_.onclick = function(){GameMachine.eventChangeDirection(2)};
-			_DirDown_.onclick = function(){GameMachine.eventChangeDirection(4)};
-			_DirLeft_.onclick = function(){GameMachine.eventChangeDirection(8)};
-			_DirRight_.onclick = function(){GameMachine.eventChangeDirection(1)};
-			_Start_.onclick = function () {
+			document.body.onkeydown = function(e){e.preventDefault();GameMachine.eventKeyDown(e)};
+			_SnakeContainer_.ontouchstart = function(){GameMachine.eventPause()};
+			_DirUp_.ontouchstart = function(){GameMachine.eventChangeDirection(2)};
+			_DirDown_.ontouchstart = function(){GameMachine.eventChangeDirection(4)};
+			_DirLeft_.ontouchstart = function(){GameMachine.eventChangeDirection(8)};
+			_DirRight_.ontouchstart = function(){GameMachine.eventChangeDirection(1)};
+			_Start_.ontouchstart = function () {
 				GameMachine.gameInitor("GameMachine");
 			};
 		</script>
