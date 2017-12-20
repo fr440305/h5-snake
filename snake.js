@@ -1,5 +1,5 @@
 /* Gluttonous Snake NEW-VERSION */
-/* Weishu Tan */
+/*  */
 /* 09142016 */
 
 var GameMachine = {
