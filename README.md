@@ -1,3 +1,3 @@
 # gluttonous-snake
-a web game.
-play it on http://fr440305.github.io/gluttonous-snake
+
+https://fr440305.github.io/h5-snake

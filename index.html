@@ -1,101 +1,265 @@
-<doctype html>
+<!doctype html>
 
 <html>
-	
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta name="keywords" content="gluttonous, snake, fr440305">
-		<link rel="stylesheet" type="text/css" href="interface.css">
-		<title> GluttonousSnake </title>
-	</head>
-	<body>
-		
-		<div id="_GameInterface_">
-			<div id="_Title_"> Gluttonous Snake </div>
-			<div id="_Start_"> <br/>Use h, j, k, l, or w, a, s, d to control
-				the snake's direction.<br/>Click <strong>me</strong> or press Enter to Start! </div>
-			<table id="_SnakeContainer_">
-				<tr> <td/><td/><td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-				<tr> <td/><td/><td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-				<tr> <td/><td/><td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-				<tr> <td/><td/><td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-				<tr> <td/><td/><td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-				<tr> <td/><td/><td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-				<tr> <td/><td/><td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-				<tr> <td/><td/><td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-				<tr> <td/><td/><td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-				<tr> <td/><td/><td/><td/><td/><td/><td/><td/><td/><td/> </tr>
-			</table>
-			<table id="_DirectionCtrler_">
-				<!-- too lazy to use CSS...-->
-				<tr> <td/><td id="_DirUp_">
-					&#9757;
-				</td><td/></tr><tr><td id="_DirLeft_">
-					&#9756;
-				</td><td/> <td id="_DirRight_">
-					&#9758;
-				</td></tr><tr><td/><td id="_DirDown_">
-					&#9759;
-				</td><td/></tr>
-			</table>
-		</div> <hr/>
-		<script type="text/javascript" src="snake.js"> </script>
-		<script type="text/javascript">
-			document.body.onkeydown = function(e){e.preventDefault();GameMachine.eventKeyDown(e)};
-			_SnakeContainer_.ontouchstart = function(){GameMachine.eventPause()};
-			_DirUp_.ontouchstart = function(){GameMachine.eventChangeDirection(2)};
-			_DirDown_.ontouchstart = function(){GameMachine.eventChangeDirection(4)};
-			_DirLeft_.ontouchstart = function(){GameMachine.eventChangeDirection(8)};
-			_DirRight_.ontouchstart = function(){GameMachine.eventChangeDirection(1)};
-			_Start_.ontouchstart = function () {
-				GameMachine.gameInitor("GameMachine");
-			};
-		</script>
+<head>
+	<meta charset='utf-8'>
+	<meta name='viewport' content='initial-scale: 1.0'>
+	<!-- <link rel='stylesheet' href='snake.css'> -->
+	<title>``Snake'' -- A web game</title>
+
+<style>
+body {
+	padding: 80px 0 0 0;
+}
+
+table {
+	margin-top: 80px;
+	width: 300px;
+	height: 300px;
+	margin: 0 auto;
+	border: 1px solid black;
+} table td {
+	text-align: center;
+	line-height: 100%;
+}
+
+.td-empty {
+	background: white;
+}
+
+.td-snake {
+	background: black;
+}
+
+.td-food {
+	border-radius: 3px;
+	background: red;
+}
 
 
-		<div id="_ConfigInterface_">
-			<!-- change the color style.-->
-			<!-- adjust the difficulty -->
-			<div id="_Title_"> Configuation </div>
-			<br/>
-			<p id="_SubTitle_"> Difficulty Setting </p>
-			<div id="_Setting_">
-				<span id="_DifficultySetting1_">-1-</span>|
-				<span id="_DifficultySetting2_">-2-</span>|
-				<span id="_DifficultySetting3_">-3-</span>|
-				<span id="_DifficultySetting4_">-4-</span>|
-				<span id="_DifficultySetting5_">[5]</span>
-			</div>
-			<p id="_SubTitle_"> Color Style </p>
-			<div id="_Setting_">
-				<span id="_ColorSetting0_">-LightStyle-</span>|
-				<span id="_ColorSetting1_">-DarkStyle-</span>|
-			</div>
-		</div> <hr/>
-		<script type="text/javascript">
-			
-		</script>
+</style>
 
 
+</head>
 
-		<div id="_InstructionInterface_">
-			<div id="_Title_"> Instruction </div>
-			<p id="_SubTitle_"> 就只是一条标题而已 </p>
-			<p> 就只是一个贪吃蛇而已。 </p>
-			<p id="_SubTitle_"> 使用说明 </p>
-			<p> 点按提示模块或者按回车键以开始游戏。</p>
-			<p> 开始游戏之后，通过wasd或hjkl（这是vim的梗，不懂就算了）
-					去操控蛇头的方向，也可以通过点按蛇所在的表格或按空格键（不推荐）
-					选择暂停。暂停后可再次点按表格以重新启动。</p>
-			<p>	玩家的目的应该是让蛇尽可能多地去吃到食物，
-					同时不要让蛇头碰到自己身体的其他部位，否则算咬死。</p>
-			<p> 顺带一提，蛇是可以穿墙的，也就是说，他不会因为撞到边缘而死。
-					总之，试着自己去撞撞看就好了。</p>
-			<p> 如果死了，玩家可以选择按回车以重新开始游戏。</p>
-			<p id="_SubTitle_"> 版权声明 </p>
-			<p> GNU.</p>
-		</div>
-<img style='align:center;width:100px;height:100px' class='header-picture' src='headimg.jpeg' />	</body>
+<body>
+<table id='el_snake_tab'>
+
+<tr> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
+<td> </td> <td> </td> <td> </td> <td> </td> <td> </td> </tr>
+<tr> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
+<td> </td> <td> </td> <td> </td> <td> </td> <td> </td> </tr>
+<tr> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
+<td> </td> <td> </td> <td> </td> <td> </td> <td> </td> </tr>
+<tr> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
+<td> </td> <td> </td> <td> </td> <td> </td> <td> </td> </tr>
+<tr> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
+<td> </td> <td> </td> <td> </td> <td> </td> <td> </td> </tr>
+<tr> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
+<td> </td> <td> </td> <td> </td> <td> </td> <td> </td> </tr>
+<tr> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
+<td> </td> <td> </td> <td> </td> <td> </td> <td> </td> </tr>
+<tr> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
+<td> </td> <td> </td> <td> </td> <td> </td> <td> </td> </tr>
+<tr> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
+<td> </td> <td> </td> <td> </td> <td> </td> <td> </td> </tr>
+<tr> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
+<td> </td> <td> </td> <td> </td> <td> </td> <td> </td> </tr>
+
+</table>
+</body>
+
+<script>
+/* -- */
+function Snake() {
+	this.body = []; //body[0] is head, body[len-1] is tail
+	this.d = 'r' // right
+	this.dmap = {
+		'd': { r: 1,  c: 0  },
+		'u': { r: -1, c: 0  },
+		'l': { r: 0,  c: -1 },
+		'r': { r: 0,  c: 1  }
+	}
+	for (var i = 5; i > 0; i -= 1) {
+		this.body.push({r: 3, c: i})
+	}
+}
+
+Snake.prototype.SetDirection = function(ch) {
+	var oppo = {
+		'd': 'u',
+		'u': 'd',
+		'l': 'r',
+		'r': 'l'
+	}
+	if (oppo[ch] === this.d) {
+		return
+	}
+	this.d = ch
+}
+
+Snake.prototype.Grow = function() {
+	var oldhead = this.body[0]
+	var newhead = {r: 0, c: 0}
+	var d = this.dmap[this.d]
+	newhead.r = (oldhead.r + d.r) % 10;
+	if (newhead.r < 0) {
+		newhead.r = 10 + newhead.r;
+	}
+	newhead.c = (oldhead.c + d.c) % 10;
+	if (newhead.c < 0) {
+		newhead.c = 10 + newhead.c;
+	}
+	this.body.unshift(newhead)
+}
+
+Snake.prototype.Move = function() {
+	this.Grow()
+	this.body.pop()
+}
+
+Snake.prototype.IsGonnaReach = function(r, c) {
+	var head = this.body[0]
+	var d = this.dmap[this.d]
+	return (r === head.r + d.r) && (c === head.c + d.c)
+}
+
+Snake.prototype.IsAlive = function() {
+	var arr = [] // like a hashset
+	var r = 0, c = 0, pos = 0;
+	for (var i = 0; i < this.body.length; i += 1) {
+		r = this.body[i].r;
+		c = this.body[i].c;
+		pos = r * 10 + c;
+		if (arr[pos] !== undefined) {
+			return false;
+		}
+		arr[pos] = 1
+	}
+	return true;
+}
+
+Snake.prototype.GetMatrix = function() {
+	var mat = []
+	var r = 0, c = 0;
+
+	for (var r = 0; r < 10; r += 1) {
+		var newrow = []
+		for (var c = 0; c < 10; c += 1) {
+			newrow.push(0)
+		}
+		mat.push(newrow)
+	}
+	for (var i = 0; i < this.body.length; i += 1) {
+		r = this.body[i].r;
+		c = this.body[i].c;
+		mat[r][c] = 1;
+	}
+
+	return mat
+}
+
+function Ui() {
+	this.cells = [] // Arr<EL.td>
+	this.classes = ["td-empty", "td-snake", "td-food"]
+	this.css = document.styleSheets[0];
+
+	var tab = el_snake_tab // doc.getel.byID
+	var rows = tab.rows
+	for (var r = 0; r < rows.length; r += 1) {
+		 this.cells.push(rows[r].cells)
+	}
+}
+
+Ui.prototype.DrawMatrix = function(mat) {
+	for (var r = 0; r < mat.length; r += 1) {
+		for (var c = 0; c < mat[r].length; c += 1) {
+			// set class rather than style: XXX
+			this.cells[r][c].classList = [this.classes[mat[r][c]]];
+		}
+	}
+}
+
+function Main(snake_module_ctor, ui_module_ctor) {
+	this.ui = new ui_module_ctor()
+	this.snake = new snake_module_ctor()
+
+	this.foodr = 0;
+	this.foodc = 0;
+
+	this.timer = undefined;
+	this.paused = false;
+
+	this.run()
+}
+
+Main.prototype.setFood = function() { 
+	//this.foodr = Math.floor(Math.random() * 10)
+	//this.foodc = Math.floor(Math.random() * 10)
+	var mat = this.snake.GetMatrix()
+	var empties = [];
+	var i = 0;
+
+	for (var r = 0; r < mat.length; r += 1) {
+		for (var c = 0; c < mat[r].length; c += 1) {
+			if (mat[r][c] === 0) { // nothing inside
+				empties.push({'r': r, 'c': c})
+			}
+		}
+	}
+	i = Math.floor(Math.random() * empties.length)
+	this.foodr = empties[i].r;
+	this.foodc = empties[i].c;
+}
+
+Main.prototype.moveSnake = function() {
+	if (this.snake.IsGonnaReach(this.foodr, this.foodc)) {
+		this.snake.Grow()
+		this.setFood()
+	} else {
+		this.snake.Move()
+	}
+	var mat = this.snake.GetMatrix()
+	mat[this.foodr][this.foodc] = 2;
+	this.ui.DrawMatrix(mat)
+}
+
+Main.prototype.bindKeyboardEvents = function() {
+	var main = this;
+
+	document.body.onkeydown = function(ev) {
+		var keymap = {
+			87:'u',
+			65:'l',
+			83:'d',
+			68:'r'
+		};
+		ev = ev || window.event;
+		ev = ev.keyCode || ev.which;
+		if (ev === 32) {
+			main.paused = !main.paused;
+			return
+		}
+		var dchar = keymap[ev]
+		if (dchar !== undefined) {
+			main.snake.SetDirection(dchar)
+		}
+	}
+}
+
+Main.prototype.run = function() {
+	var main = this;
+
+	main.bindKeyboardEvents()
+	main.timer = setInterval(function() {
+		if (!main.paused) {
+			main.moveSnake()
+		}
+	}, 1000)
+}
+
+var MAIN = new Main(Snake, Ui)
+
+</script>
+
 </html>
-	
