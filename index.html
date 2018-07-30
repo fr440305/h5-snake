@@ -3,24 +3,47 @@
 <html>
 <head>
 	<meta charset='utf-8'>
-	<meta name='viewport' content='initial-scale: 1.0'>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!-- <link rel='stylesheet' href='snake.css'> -->
 	<title>``Snake'' -- A web game</title>
 
 <style>
 body {
-	padding: 80px 0 0 0;
+	padding: 10px 0 0 0;
 }
 
-table {
+#el_snake_tab {
 	margin-top: 80px;
 	width: 300px;
 	height: 300px;
 	margin: 0 auto;
-	border: 1px solid black;
-} table td {
+	border: 1px solid #aaa;
+	border-radius: 3px;
+} #el_snake_tab td {
 	text-align: center;
 	line-height: 100%;
+}
+
+#info {
+	text-align: center;
+	height: 1.5em;
+}
+
+#dir_ctrl {
+	width: 180px;
+	height: 180px;
+	margin: 0 auto;
+	text-align: center;
+} /* #dir_ctrl */ .dir-ctrl-button {
+	font-size: 16px;
+	width: 33.3%;
+	background: black;
+	color: white;
+	/* border: 1px solid black; */
+	border-radius: 10px;
+} .dir-ctrl-button:active {
+	background: white;
+	color: black;
 }
 
 .td-empty {
@@ -67,6 +90,14 @@ table {
 <td> </td> <td> </td> <td> </td> <td> </td> <td> </td> </tr>
 
 </table>
+
+<div id='info'>Press the big squre above (&uarr;) to start</div>
+<table id='dir_ctrl'>
+
+<tr> <td></td> <td  class='dir-ctrl-button' id='dir_ctrl_up'>&uarr;</td> <td></td> </tr>
+<tr> <td class='dir-ctrl-button' id='dir_ctrl_left'>&larr;</td> <td id='dir_ctrl_middle'></td> <td class='dir-ctrl-button' id='dir_ctrl_right'>&rarr;</td> </tr>
+<tr> <td></td> <td class='dir-ctrl-button' id='dir_ctrl_down'>&darr;</td> <td></td> </tr>
+</table>
 </body>
 
 <script>
@@ -83,6 +114,10 @@ function Snake() {
 	for (var i = 5; i > 0; i -= 1) {
 		this.body.push({r: 3, c: i})
 	}
+}
+
+Snake.prototype.GetLength = function() {
+	return this.body.length
 }
 
 Snake.prototype.SetDirection = function(ch) {
@@ -162,6 +197,8 @@ Snake.prototype.GetMatrix = function() {
 function Ui() {
 	this.cells = [] // Arr<EL.td>
 	this.classes = ["td-empty", "td-snake", "td-food"]
+
+	// TODO prepare different stylesheet for gameover and pause
 	this.css = document.styleSheets[0];
 
 	var tab = el_snake_tab // doc.getel.byID
@@ -169,6 +206,10 @@ function Ui() {
 	for (var r = 0; r < rows.length; r += 1) {
 		 this.cells.push(rows[r].cells)
 	}
+}
+
+Ui.prototype.ShowScore = function(score) {
+	dir_ctrl_middle.innerText = score.toString()
 }
 
 Ui.prototype.DrawMatrix = function(mat) {
@@ -188,8 +229,11 @@ function Main(snake_module_ctor, ui_module_ctor) {
 	this.foodc = 0;
 
 	this.timer = undefined;
-	this.paused = false;
+	this.paused = true;
+	this.mobile = false;
 
+	//this.ui.DrawMatrix(this.snake.GetMatrix());
+	this.moveSnake();
 	this.run()
 }
 
@@ -228,6 +272,8 @@ Main.prototype.bindKeyboardEvents = function() {
 	var main = this;
 
 	document.body.onkeydown = function(ev) {
+		main.mobile = false;
+		console.log("key")
 		var keymap = {
 			87:'u',
 			65:'l',
@@ -247,15 +293,73 @@ Main.prototype.bindKeyboardEvents = function() {
 	}
 }
 
+Main.prototype.bindPressEvents = function() {
+	var main = this;
+
+	/* document.body.ontouchstart = function(ev) {
+		ev.preventDefault();
+	}
+	document.body.ontouchmove = function(ev) {
+		ev.preventDefault();
+	}
+	document.body.ontouchend = function(ev) {
+		ev.preventDefault();
+	} */
+
+	el_snake_tab.ontouchstart = function(ev) {
+		console.log("touch")
+		main.mobile = true;
+		// el_snake_tab.onclick = undefined;
+		main.paused = !main.paused;
+		dir_ctrl_up.ontouchstart = function() {
+			if (!main.paused) main.snake.SetDirection('u')
+		}
+		dir_ctrl_down.ontouchstart = function() {
+			if (!main.paused) main.snake.SetDirection('d')
+		}
+		dir_ctrl_left.ontouchstart = function() {
+			if (!main.paused) main.snake.SetDirection('l')
+		}
+		dir_ctrl_right.ontouchstart = function() {
+			if (!main.paused) main.snake.SetDirection('r')
+		}
+	}
+
+	el_snake_tab.onclick = function() {
+		//main.paused = !main.paused;
+		console.log("click, " + main.mobile)
+		if (main.mobile === true) {
+			return
+		}
+		main.paused = !main.paused;
+		dir_ctrl_up.onclick = function() {
+			if (!main.paused) main.snake.SetDirection('u')
+		}
+		dir_ctrl_down.onclick = function() {
+			if (!main.paused) main.snake.SetDirection('d')
+		}
+		dir_ctrl_left.onclick = function() {
+			if (!main.paused) main.snake.SetDirection('l')
+		}
+		dir_ctrl_right.onclick = function() {
+			if (!main.paused) main.snake.SetDirection('r')
+		}
+	}
+}
+
 Main.prototype.run = function() {
 	var main = this;
 
 	main.bindKeyboardEvents()
+	main.bindPressEvents()
+
 	main.timer = setInterval(function() {
 		if (!main.paused) {
+			info.innerText = "";
 			main.moveSnake()
+			main.ui.ShowScore(main.snake.GetLength())
 		}
-	}, 1000)
+	}, 500)
 }
 
 var MAIN = new Main(Snake, Ui)
