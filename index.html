@@ -24,6 +24,28 @@ body {
 	line-height: 100%;
 }
 
+@keyframes shine {
+	from {
+		background: #6cf;
+	} to {
+		background: white;
+	}
+}
+
+.shine, .shine .td-empty {
+	animation-name: shine;
+	animation-duration: 0.7s;
+	animation-iteration-count: infinite;
+}
+
+.paused .td-empty {
+	background: #ccc;
+}
+
+.grey .td-snake {
+	background: grey;
+}
+
 #info {
 	text-align: center;
 	height: 1.5em;
@@ -66,7 +88,7 @@ body {
 </head>
 
 <body>
-<table id='el_snake_tab'>
+<table id='el_snake_tab' class='shine'>
 
 <tr> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
 <td> </td> <td> </td> <td> </td> <td> </td> <td> </td> </tr>
@@ -127,10 +149,9 @@ Snake.prototype.SetDirection = function(ch) {
 		'l': 'r',
 		'r': 'l'
 	}
-	if (oppo[ch] === this.d) {
-		return
+	if (oppo[ch] !== this.d) {
+		this.d = ch
 	}
-	this.d = ch
 }
 
 Snake.prototype.Grow = function() {
@@ -197,15 +218,30 @@ Snake.prototype.GetMatrix = function() {
 function Ui() {
 	this.cells = [] // Arr<EL.td>
 	this.classes = ["td-empty", "td-snake", "td-food"]
+	this.snaketab = el_snake_tab // doc.getel.byID
+	this.infodiv = info;
 
-	// TODO prepare different stylesheet for gameover and pause
-	this.css = document.styleSheets[0];
-
-	var tab = el_snake_tab // doc.getel.byID
-	var rows = tab.rows
+	var rows = this.snaketab.rows
 	for (var r = 0; r < rows.length; r += 1) {
 		 this.cells.push(rows[r].cells)
 	}
+}
+
+Ui.prototype.SetShine = function() {
+	this.snaketab.classList = ["shine"]
+}
+
+Ui.prototype.SetPause = function() {
+	this.snaketab.classList = ["paused"]
+}
+
+Ui.prototype.Unset = function() {
+	this.infodiv.innerText = "";
+	this.snaketab.classList = []
+}
+
+Ui.prototype.SetGameOver = function() {
+	this.snaketab.classList = ["grey"]
 }
 
 Ui.prototype.ShowScore = function(score) {
@@ -224,15 +260,13 @@ Ui.prototype.DrawMatrix = function(mat) {
 function Main(snake_module_ctor, ui_module_ctor) {
 	this.ui = new ui_module_ctor()
 	this.snake = new snake_module_ctor()
-
 	this.foodr = 0;
 	this.foodc = 0;
-
 	this.timer = undefined;
+	this.started = false;
 	this.paused = true;
 	this.mobile = false;
 
-	//this.ui.DrawMatrix(this.snake.GetMatrix());
 	this.moveSnake();
 	this.run()
 }
@@ -268,6 +302,15 @@ Main.prototype.moveSnake = function() {
 	this.ui.DrawMatrix(mat)
 }
 
+Main.prototype.TogglePause = function() {
+	if (this.started === false) {
+		this.started = true;
+	} else {
+		this.ui.SetPause()
+	}
+	this.paused = !this.paused;
+}
+
 Main.prototype.bindKeyboardEvents = function() {
 	var main = this;
 
@@ -283,7 +326,7 @@ Main.prototype.bindKeyboardEvents = function() {
 		ev = ev || window.event;
 		ev = ev.keyCode || ev.which;
 		if (ev === 32) {
-			main.paused = !main.paused;
+			main.TogglePause()
 			return
 		}
 		var dchar = keymap[ev]
@@ -293,24 +336,21 @@ Main.prototype.bindKeyboardEvents = function() {
 	}
 }
 
+Main.prototype.UnbindClickEvents = function() {
+	el_snake_tab.onclick = undefined;
+	dir_ctrl_up.onclick = undefined;
+	dir_ctrl_down.onclick = undefined;
+	dir_ctrl_left.onclick = undefined;
+	dir_ctrl_right.onclick = undefined;
+}
+
 Main.prototype.bindPressEvents = function() {
 	var main = this;
 
-	/* document.body.ontouchstart = function(ev) {
-		ev.preventDefault();
-	}
-	document.body.ontouchmove = function(ev) {
-		ev.preventDefault();
-	}
-	document.body.ontouchend = function(ev) {
-		ev.preventDefault();
-	} */
-
 	el_snake_tab.ontouchstart = function(ev) {
-		console.log("touch")
-		main.mobile = true;
-		// el_snake_tab.onclick = undefined;
-		main.paused = !main.paused;
+		main.UnbindClickEvents()
+		main.TogglePause()
+
 		dir_ctrl_up.ontouchstart = function() {
 			if (!main.paused) main.snake.SetDirection('u')
 		}
@@ -326,24 +366,20 @@ Main.prototype.bindPressEvents = function() {
 	}
 
 	el_snake_tab.onclick = function() {
-		//main.paused = !main.paused;
-		console.log("click, " + main.mobile)
-		if (main.mobile === true) {
-			return
-		}
-		main.paused = !main.paused;
-		dir_ctrl_up.onclick = function() {
-			if (!main.paused) main.snake.SetDirection('u')
-		}
-		dir_ctrl_down.onclick = function() {
-			if (!main.paused) main.snake.SetDirection('d')
-		}
-		dir_ctrl_left.onclick = function() {
-			if (!main.paused) main.snake.SetDirection('l')
-		}
-		dir_ctrl_right.onclick = function() {
-			if (!main.paused) main.snake.SetDirection('r')
-		}
+		main.TogglePause()
+	}
+
+	dir_ctrl_up.onclick = function() {
+		if (!main.paused) main.snake.SetDirection('u')
+	}
+	dir_ctrl_down.onclick = function() {
+		if (!main.paused) main.snake.SetDirection('d')
+	}
+	dir_ctrl_left.onclick = function() {
+		if (!main.paused) main.snake.SetDirection('l')
+	}
+	dir_ctrl_right.onclick = function() {
+		if (!main.paused) main.snake.SetDirection('r')
 	}
 }
 
@@ -352,12 +388,15 @@ Main.prototype.run = function() {
 
 	main.bindKeyboardEvents()
 	main.bindPressEvents()
-
 	main.timer = setInterval(function() {
 		if (!main.paused) {
-			info.innerText = "";
+			main.ui.Unset()
 			main.moveSnake()
 			main.ui.ShowScore(main.snake.GetLength())
+			if (!main.snake.IsAlive()) {
+				main.ui.SetGameOver()
+				clearInterval(main.timer)
+			}
 		}
 	}, 500)
 }
