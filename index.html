@@ -34,7 +34,7 @@ body {
 
 .shine, .shine .td-empty {
 	animation-name: shine;
-	animation-duration: 0.7s;
+	animation-duration: 2s;
 	animation-iteration-count: infinite;
 }
 
@@ -48,7 +48,7 @@ body {
 
 #info {
 	text-align: center;
-	height: 1.5em;
+	line-height: 2em;
 }
 
 #dir_ctrl {
@@ -88,7 +88,7 @@ body {
 </head>
 
 <body>
-<table id='el_snake_tab' class='shine'>
+<table id='el_snake_tab'>
 
 <tr> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
 <td> </td> <td> </td> <td> </td> <td> </td> <td> </td> </tr>
@@ -113,7 +113,7 @@ body {
 
 </table>
 
-<div id='info'>Press the big squre above (&uarr;) to start</div>
+<div id='info'>To <b>PAUSE</b>, press space or press the big square above (&uarr;)</div>
 <table id='dir_ctrl'>
 
 <tr> <td></td> <td  class='dir-ctrl-button' id='dir_ctrl_up'>&uarr;</td> <td></td> </tr>
@@ -232,15 +232,20 @@ Ui.prototype.SetShine = function() {
 }
 
 Ui.prototype.SetPause = function() {
+	this.infodiv.innerHTML =
+		"To <b>RUN</b>, press space or press the big square above (&uarr;)"
 	this.snaketab.classList = ["paused"]
 }
 
 Ui.prototype.Unset = function() {
-	this.infodiv.innerText = "";
+	this.infodiv.innerHTML =
+		"To <b>PAUSE</b>, press space or press the big square above (&uarr;)"
 	this.snaketab.classList = []
 }
 
 Ui.prototype.SetGameOver = function() {
+	this.infodiv.innerHTML =
+		"To <b>RESTART</b>, press space or press the big square above (&uarr;)"
 	this.snaketab.classList = ["grey"]
 }
 
@@ -257,15 +262,16 @@ Ui.prototype.DrawMatrix = function(mat) {
 	}
 }
 
+// TODO More elegant event binding is required
 function Main(snake_module_ctor, ui_module_ctor) {
 	this.ui = new ui_module_ctor()
 	this.snake = new snake_module_ctor()
 	this.foodr = 0;
 	this.foodc = 0;
 	this.timer = undefined;
-	this.started = false;
-	this.paused = true;
-	this.mobile = false;
+	//this.started = false;
+	this.paused = false;
+	//this.mobile = false;
 
 	this.moveSnake();
 	this.run()
@@ -303,11 +309,7 @@ Main.prototype.moveSnake = function() {
 }
 
 Main.prototype.TogglePause = function() {
-	if (this.started === false) {
-		this.started = true;
-	} else {
-		this.ui.SetPause()
-	}
+	this.ui.SetPause()
 	this.paused = !this.paused;
 }
 
@@ -316,7 +318,7 @@ Main.prototype.bindKeyboardEvents = function() {
 
 	document.body.onkeydown = function(ev) {
 		main.mobile = false;
-		console.log("key")
+		//console.log("key")
 		var keymap = {
 			87:'u',
 			65:'l',
@@ -386,6 +388,7 @@ Main.prototype.bindPressEvents = function() {
 Main.prototype.run = function() {
 	var main = this;
 
+	//main.ui.SetPrestart()
 	main.bindKeyboardEvents()
 	main.bindPressEvents()
 	main.timer = setInterval(function() {
@@ -395,13 +398,23 @@ Main.prototype.run = function() {
 			main.ui.ShowScore(main.snake.GetLength())
 			if (!main.snake.IsAlive()) {
 				main.ui.SetGameOver()
+				document.body.onkeydown = function(e) {
+					e = e || window.event;
+					e = e.keyCode || e.which;
+					if (e === 32) {
+						new Main(Snake, Ui)
+					}
+				}
+				el_snake_tab.onclick = function() {
+					new Main(Snake, Ui)
+				}
 				clearInterval(main.timer)
 			}
 		}
 	}, 500)
 }
 
-var MAIN = new Main(Snake, Ui)
+/* var MAIN = */new Main(Snake, Ui)
 
 </script>
 
