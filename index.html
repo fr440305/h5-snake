@@ -8,6 +8,7 @@
 	<title>``Snake'' -- A web game</title>
 
 <style>
+
 body {
 	padding: 10px 0 0 0;
 }
@@ -24,14 +25,6 @@ body {
 	line-height: 100%;
 }
 
-.paused .td-empty {
-	background: #ccc;
-}
-
-.grey .td-snake {
-	background: grey;
-}
-
 #info {
 	text-align: center;
 	line-height: 2em;
@@ -42,12 +35,11 @@ body {
 	height: 180px;
 	margin: 0 auto;
 	text-align: center;
-} /* #dir_ctrl */ .dir-ctrl-button {
+} .dir-ctrl-button {
 	font-size: 16px;
 	width: 33.3%;
 	background: black;
 	color: white;
-	/* border: 1px solid black; */
 	border-radius: 10px;
 } .dir-ctrl-button:active {
 	background: white;
@@ -56,21 +48,20 @@ body {
 
 .td-empty {
 	background: white;
-}
-
-.td-snake {
+} .td-snake {
 	background: black;
-}
-
-.td-food {
+} .td-food {
 	border-radius: 3px;
 	background: red;
 }
 
+.paused .td-empty {
+	background: #ccc;
+} .grey .td-snake {
+	background: grey;
+}
 
 </style>
-
-
 </head>
 
 <body>
@@ -99,6 +90,7 @@ body {
 
 </table>
 
+<!--<div id='debug'></div>-->
 <div id='info'>To <b>PAUSE</b>, press space or the screen above (&uarr;)</div>
 <table id='dir_ctrl'>
 
@@ -110,6 +102,10 @@ body {
 
 <script>
 function Snake() {
+	this.Init()
+}
+
+Snake.prototype.Init = function() {
 	this.body = []; //body[0] is head, body[len-1] is tail
 	this.d = 'r' // right
 	this.dmap = {
@@ -139,19 +135,23 @@ Snake.prototype.SetDirection = function(ch) {
 	}
 }
 
-Snake.prototype.Grow = function() {
-	var oldhead = this.body[0]
-	var newhead = {r: 0, c: 0}
+Snake.prototype.nextHead = function() {
+	var head = this.body[0]
 	var d = this.dmap[this.d]
-	newhead.r = (oldhead.r + d.r) % 10;
-	if (newhead.r < 0) {
-		newhead.r = 10 + newhead.r;
-	}
-	newhead.c = (oldhead.c + d.c) % 10;
-	if (newhead.c < 0) {
-		newhead.c = 10 + newhead.c;
-	}
-	this.body.unshift(newhead)
+	//console.log(head, this.d)
+
+
+	var rr = (head.r + d.r) % 10;
+	var cc = (head.c + d.c) % 10;
+
+	if (rr < 0) rr += 10;
+	if (cc < 0) cc += 10;
+
+	return {r: rr, c: cc}
+}
+
+Snake.prototype.Grow = function() {
+	this.body.unshift(this.nextHead())
 }
 
 Snake.prototype.Move = function() {
@@ -160,22 +160,19 @@ Snake.prototype.Move = function() {
 }
 
 Snake.prototype.IsGonnaReach = function(r, c) {
-	var head = this.body[0]
-	var d = this.dmap[this.d]
-	return (r === head.r + d.r) && (c === head.c + d.c)
+	var nh = this.nextHead()
+	return (r === nh.r) && (c === nh.c)
 }
 
 Snake.prototype.IsAlive = function() {
-	var arr = [] // like a hashset
-	var r = 0, c = 0, pos = 0;
-	for (var i = 0; i < this.body.length; i += 1) {
+	var r = 0, c = 0, r0 = this.body[0].r, c0 = this.body[0].c;
+
+	for (var i = 1; i < this.body.length; i += 1) {
 		r = this.body[i].r;
 		c = this.body[i].c;
-		pos = r * 10 + c;
-		if (arr[pos] !== undefined) {
+		if (r == r0 && c == c0) {
 			return false;
 		}
-		arr[pos] = 1
 	}
 	return true;
 }
@@ -185,11 +182,7 @@ Snake.prototype.GetMatrix = function() {
 	var r = 0, c = 0;
 
 	for (var r = 0; r < 10; r += 1) {
-		var newrow = []
-		for (var c = 0; c < 10; c += 1) {
-			newrow.push(0)
-		}
-		mat.push(newrow)
+		mat.push([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 	}
 	for (var i = 0; i < this.body.length; i += 1) {
 		r = this.body[i].r;
@@ -244,24 +237,136 @@ Ui.prototype.DrawMatrix = function(mat) {
 	}
 }
 
-// TODO More elegant event binding is required
-function Main(snake_module_ctor, ui_module_ctor) {
+function EvBinder() {
+	this.els = [
+		"el_snake_tab",
+		"dir_ctrl_up",
+		"dir_ctrl_down",
+		"dir_ctrl_left",
+		"dir_ctrl_right"
+	]
+	this.emap = {
+		"dir_ctrl_up":'u',
+		"dir_ctrl_down":'d',
+		"dir_ctrl_left":'l',
+		"dir_ctrl_right":'r'
+	}
+	this.touchable = undefined;
+
+	this.Unset()
+	this.bind()
+}
+
+EvBinder.prototype.Unset = function() {
+	this.dirfn = this.pausefn = this.refn = undefined;
+}
+
+EvBinder.prototype.SetRestartHandler = function(fn) {
+	this.refn = fn
+}
+
+EvBinder.prototype.SetPauseHandler = function(fn) {
+	this.pausefn = fn
+}
+
+EvBinder.prototype.SetDirectionHandler = function(fn) {
+	this.dirfn = fn
+}
+
+EvBinder.prototype.UnbindEvents = function(evname) {
+	if (evname === 'onkeydown') {
+		document.body.onkeydown = undefined;
+		return
+	}
+	for (var i = 0; i < this.els.length; i += 1) {
+		document.getElementById(this.els[i])[evname] = undefined;
+	}
+}
+
+EvBinder.prototype.bind = function() {
+	var evb = this;
+
+	document.body.onkeydown = function(e) {
+		evb.touchable = false;
+		e = e || window.event;
+		e = e.keyCode || e.which;
+		if (e === 32) {
+			if (evb.refn !== undefined) {
+				evb.refn()
+			} else if (evb.pausefn !== undefined){
+				evb.pausefn()
+			}
+			return
+		}
+		if (evb.dirfn !== undefined) {
+			var dchar = {
+				'W':'u',
+				'A':'l',
+				'S':'d',
+				'D':'r'
+			}[String.fromCharCode(e)]
+			if (dchar !== undefined) {
+				evb.dirfn(dchar)
+			}
+		}
+	}
+
+	for (var i = 1; i < evb.els.length; i += 1) {
+		document.getElementById(evb.els[i]).ontouchstart = function() {
+			evb.touchable = true;
+			evb.dirfn(evb.emap[this.id])
+		}
+		document.getElementById(evb.els[i]).onclick = function() {
+			if (evb.touchable === true) {
+				evb.UnbindEvents('onclick')
+				return
+			}
+			evb.dirfn(evb.emap[this.id])
+		}
+	}
+
+	document.getElementById(evb.els[0]).ontouchstart = function() {
+		evb.touchable = true;
+		//evb.UnbindEvents('onclick')
+		if (evb.refn !== undefined) {
+			//debug.innerText += (evb.touchable + "ontouchstart refn ")
+			evb.refn()
+		} else if (evb.pausefn !== undefined) {
+			//debug.innerText += "ontouchstart pausefn "
+			evb.pausefn()
+		}
+	}
+
+	document.getElementById(evb.els[0]).onclick = function() {
+		if (evb.touchable === true) {
+			evb.UnbindEvents('onclick')
+			//debug.innerText += "unbind click events of table. "
+			return
+		}
+		if (evb.refn !== undefined) {
+			//debug.innerText += "onclick refn "
+			evb.refn()
+		} else if (evb.pausefn !== undefined) {
+			//debug.innerText += "onclick pausefn "
+			evb.pausefn()
+		}
+	}
+}
+
+function Main(snake_module_ctor, ui_module_ctor, ev_module_ctor) {
 	this.ui = new ui_module_ctor()
 	this.snake = new snake_module_ctor()
+	this.ev = new ev_module_ctor()
+
 	this.foodr = 0;
 	this.foodc = 0;
 	this.timer = undefined;
-	//this.started = false;
 	this.paused = false;
-	//this.mobile = false;
 
-	//this.moveSnake();
 	this.run()
 }
 
 Main.prototype.setFood = function() { 
-	//this.foodr = Math.floor(Math.random() * 10)
-	//this.foodc = Math.floor(Math.random() * 10)
 	var mat = this.snake.GetMatrix()
 	var empties = [];
 	var i = 0;
@@ -285,9 +390,14 @@ Main.prototype.moveSnake = function() {
 	} else {
 		this.snake.Move()
 	}
+}
+
+Main.prototype.Draw = function() {
 	var mat = this.snake.GetMatrix()
+
 	mat[this.foodr][this.foodc] = 2;
 	this.ui.DrawMatrix(mat)
+	this.ui.ShowScore(this.snake.GetLength())
 }
 
 Main.prototype.TogglePause = function() {
@@ -295,117 +405,47 @@ Main.prototype.TogglePause = function() {
 	this.paused = !this.paused;
 }
 
-Main.prototype.bindKeyboardEvents = function() {
+Main.prototype.setPlayerEvents = function() {
 	var main = this;
 
-	document.body.onkeydown = function(ev) {
-		main.mobile = false;
-		//console.log("key")
-		var keymap = {
-			87:'u',
-			65:'l',
-			83:'d',
-			68:'r'
-		};
-		ev = ev || window.event;
-		ev = ev.keyCode || ev.which;
-		if (ev === 32) {
-			main.TogglePause()
-			return
-		}
-		var dchar = keymap[ev]
-		if (dchar !== undefined) {
+	main.ev.SetDirectionHandler(function(dchar) {
+		if (!main.paused) {
 			main.snake.SetDirection(dchar)
 		}
-	}
-}
-
-Main.prototype.UnbindTouchEvents = function() {
-	el_snake_tab.ontouchstart = undefined;
-	dir_ctrl_up.ontouchstart = undefined;
-	dir_ctrl_down.ontouchstart = undefined;
-	dir_ctrl_left.ontouchstart = undefined;
-	dir_ctrl_right.ontouchstart = undefined;
-}
-
-Main.prototype.UnbindClickEvents = function() {
-	el_snake_tab.onclick = undefined;
-	dir_ctrl_up.onclick = undefined;
-	dir_ctrl_down.onclick = undefined;
-	dir_ctrl_left.onclick = undefined;
-	dir_ctrl_right.onclick = undefined;
-}
-
-Main.prototype.bindPressEvents = function() {
-	var main = this;
-
-	el_snake_tab.ontouchstart = function(ev) {
-		main.UnbindClickEvents()
+	})
+	main.ev.SetPauseHandler(function() {
 		main.TogglePause()
-
-		dir_ctrl_up.ontouchstart = function() {
-			if (!main.paused) main.snake.SetDirection('u')
-		}
-		dir_ctrl_down.ontouchstart = function() {
-			if (!main.paused) main.snake.SetDirection('d')
-		}
-		dir_ctrl_left.ontouchstart = function() {
-			if (!main.paused) main.snake.SetDirection('l')
-		}
-		dir_ctrl_right.ontouchstart = function() {
-			if (!main.paused) main.snake.SetDirection('r')
-		}
-	}
-
-	el_snake_tab.onclick = function() {
-		main.TogglePause()
-	}
-
-	dir_ctrl_up.onclick = function() {
-		if (!main.paused) main.snake.SetDirection('u')
-	}
-	dir_ctrl_down.onclick = function() {
-		if (!main.paused) main.snake.SetDirection('d')
-	}
-	dir_ctrl_left.onclick = function() {
-		if (!main.paused) main.snake.SetDirection('l')
-	}
-	dir_ctrl_right.onclick = function() {
-		if (!main.paused) main.snake.SetDirection('r')
-	}
+	})
 }
 
 Main.prototype.run = function() {
 	var main = this;
+	this.foodr = 0;
+	this.foodc = 0;
+	this.timer = undefined;
+	this.paused = false;
 
-	//main.ui.SetPrestart()
-	main.bindKeyboardEvents()
-	main.bindPressEvents()
+	main.ui.Unset()
+	main.snake.Init()
+	main.ev.Unset()
+	main.setPlayerEvents()
+
 	main.timer = setInterval(function() {
 		if (!main.paused) {
-			main.ui.Unset()
 			main.moveSnake()
-			main.ui.ShowScore(main.snake.GetLength())
+			main.Draw()
 			if (!main.snake.IsAlive()) {
 				main.ui.SetGameOver()
-				main.UnbindTouchEvents()
-				document.body.onkeydown = function(e) {
-					e = e || window.event;
-					e = e.keyCode || e.which;
-					if (e === 32) {
-						new Main(Snake, Ui)
-					}
-				}
-				el_snake_tab.onclick = function() {
-					new Main(Snake, Ui)
-				}
+				main.ev.SetRestartHandler(function() {
+					main.run()
+				})
 				clearInterval(main.timer)
 			}
 		}
 	}, 500)
 }
 
-/* var MAIN = */new Main(Snake, Ui)
+new Main(Snake, Ui, EvBinder)
 
 </script>
 
