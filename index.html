@@ -320,6 +320,14 @@ Main.prototype.bindKeyboardEvents = function() {
 	}
 }
 
+Main.prototype.UnbindTouchEvents = function() {
+	el_snake_tab.ontouchstart = undefined;
+	dir_ctrl_up.ontouchstart = undefined;
+	dir_ctrl_down.ontouchstart = undefined;
+	dir_ctrl_left.ontouchstart = undefined;
+	dir_ctrl_right.ontouchstart = undefined;
+}
+
 Main.prototype.UnbindClickEvents = function() {
 	el_snake_tab.onclick = undefined;
 	dir_ctrl_up.onclick = undefined;
@@ -380,6 +388,7 @@ Main.prototype.run = function() {
 			main.ui.ShowScore(main.snake.GetLength())
 			if (!main.snake.IsAlive()) {
 				main.ui.SetGameOver()
+				main.UnbindTouchEvents()
 				document.body.onkeydown = function(e) {
 					e = e || window.event;
 					e = e.keyCode || e.which;
