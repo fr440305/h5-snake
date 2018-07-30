@@ -24,20 +24,6 @@ body {
 	line-height: 100%;
 }
 
-@keyframes shine {
-	from {
-		background: #6cf;
-	} to {
-		background: white;
-	}
-}
-
-.shine, .shine .td-empty {
-	animation-name: shine;
-	animation-duration: 2s;
-	animation-iteration-count: infinite;
-}
-
 .paused .td-empty {
 	background: #ccc;
 }
@@ -113,7 +99,7 @@ body {
 
 </table>
 
-<div id='info'>To <b>PAUSE</b>, press space or press the big square above (&uarr;)</div>
+<div id='info'>To <b>PAUSE</b>, press space or the screen above (&uarr;)</div>
 <table id='dir_ctrl'>
 
 <tr> <td></td> <td  class='dir-ctrl-button' id='dir_ctrl_up'>&uarr;</td> <td></td> </tr>
@@ -123,7 +109,6 @@ body {
 </body>
 
 <script>
-/* -- */
 function Snake() {
 	this.body = []; //body[0] is head, body[len-1] is tail
 	this.d = 'r' // right
@@ -227,26 +212,22 @@ function Ui() {
 	}
 }
 
-Ui.prototype.SetShine = function() {
-	this.snaketab.classList = ["shine"]
-}
-
-Ui.prototype.SetPause = function() {
+Ui.prototype.TogglePause = function() {
 	this.infodiv.innerHTML =
-		"To <b>RUN</b>, press space or press the big square above (&uarr;)"
-	this.snaketab.classList = ["paused"]
+		"To <b>RUN</b>, press space or the screen above (&uarr;)"
+	this.snaketab.classList.toggle("paused")
 }
 
 Ui.prototype.Unset = function() {
 	this.infodiv.innerHTML =
-		"To <b>PAUSE</b>, press space or press the big square above (&uarr;)"
-	this.snaketab.classList = []
+		"To <b>PAUSE</b>, press space or the screen above (&uarr;)"
+	this.snaketab.className = ""
 }
 
 Ui.prototype.SetGameOver = function() {
 	this.infodiv.innerHTML =
-		"To <b>RESTART</b>, press space or press the big square above (&uarr;)"
-	this.snaketab.classList = ["grey"]
+		"To <b>RESTART</b>, press space or the screen above (&uarr;)"
+	this.snaketab.classList.add("grey")
 }
 
 Ui.prototype.ShowScore = function(score) {
@@ -256,8 +237,9 @@ Ui.prototype.ShowScore = function(score) {
 Ui.prototype.DrawMatrix = function(mat) {
 	for (var r = 0; r < mat.length; r += 1) {
 		for (var c = 0; c < mat[r].length; c += 1) {
-			// set class rather than style: XXX
-			this.cells[r][c].classList = [this.classes[mat[r][c]]];
+			//this.cells[r][c].classList = [this.classes[mat[r][c]]];
+			this.cells[r][c].className = "";
+			this.cells[r][c].classList.add(this.classes[mat[r][c]]);
 		}
 	}
 }
@@ -273,7 +255,7 @@ function Main(snake_module_ctor, ui_module_ctor) {
 	this.paused = false;
 	//this.mobile = false;
 
-	this.moveSnake();
+	//this.moveSnake();
 	this.run()
 }
 
@@ -309,7 +291,7 @@ Main.prototype.moveSnake = function() {
 }
 
 Main.prototype.TogglePause = function() {
-	this.ui.SetPause()
+	this.ui.TogglePause()
 	this.paused = !this.paused;
 }
 
