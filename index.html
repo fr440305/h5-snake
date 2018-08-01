@@ -141,15 +141,15 @@ function Snake() {
 
 Snake.prototype.Init = function() {
 	this.body = []; //body[0] is head, body[len-1] is tail
-	this.d = 'r' // right
+	this.d = 'u' // right
 	this.dmap = {
 		'd': { r: 1,  c: 0  },
 		'u': { r: -1, c: 0  },
 		'l': { r: 0,  c: -1 },
 		'r': { r: 0,  c: 1  }
 	}
-	for (var i = 5; i > 0; i -= 1) {
-		this.body.push({r: 3, c: i})
+	for (var c = 5; c >= 3; c -= 1) {
+		this.body.push({'r': 3, 'c': c})
 	}
 }
 
@@ -250,16 +250,35 @@ Ui.prototype.ToggleNightMode = function() {
 }
 
 Ui.prototype.Unset = function() {
+	document.title = "Snake"
 	this.infodiv.innerHTML =
 		"To <b>PAUSE</b>, press space or the screen above (&uarr;)"
 	this.snaketab.className = ""
 }
 
 Ui.prototype.SetGameOver = function(score) {
-	document.title = "Your score is " + score + " | " + document.title
+	document.title = "Your score is " + score + " | Snake";
 	this.infodiv.innerHTML =
 		"To <b>RESTART</b>, press space or the screen above (&uarr;)"
 	this.snaketab.classList.add("grey")
+}
+
+Ui.prototype.Set100 = function() {
+	document.title = "Your score is 100 | Snake";
+	this.infodiv.innerHTML =
+		"To <b>RESTART</b>, press space or the screen above (&uarr;)";
+	this.DrawMatrix([
+		[0, 0, 2, 0, 0, 0, 0, 2, 0, 0],
+		[0, 2, 2, 2, 0, 0, 2, 2, 2, 0],
+		[2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+		[2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+		[2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+		[0, 2, 2, 2, 2, 2, 2, 2, 2, 0],
+		[0, 2, 2, 2, 2, 2, 2, 2, 2, 0],
+		[0, 0, 2, 2, 2, 2, 2, 2, 0, 0],
+		[0, 0, 2, 2, 2, 2, 2, 2, 0, 0],
+		[0, 0, 0, 0, 2, 2, 0, 0, 0, 0]
+	])
 }
 
 Ui.prototype.ShowScore = function(score) {
@@ -408,12 +427,6 @@ Main.prototype.setFood = function() {
 }
 
 Main.prototype.moveSnake = function() {
-	if (this.snake.IsGonnaReach(this.foodr, this.foodc)) {
-		this.snake.Grow()
-		this.setFood()
-	} else {
-		this.snake.Move()
-	}
 }
 
 Main.prototype.Draw = function() {
@@ -455,16 +468,30 @@ Main.prototype.run = function() {
 	main.setPlayerEvents()
 
 	main.timer = setInterval(function() {
-		if (!main.paused) {
-			main.moveSnake()
-			main.Draw()
-			if (!main.snake.IsAlive()) {
-				main.ui.SetGameOver(main.snake.GetLength())
-				main.ev.SetRestartHandler(function() {
-					main.run()
-				})
-				clearInterval(main.timer)
+		if (main.paused) {
+			return
+		}
+		if (main.snake.IsGonnaReach(main.foodr, main.foodc)) {
+			main.snake.Grow()
+			if (main.snake.GetLength() !== 100) {
+				main.setFood()
 			}
+		} else {
+			main.snake.Move()
+		}
+		if (main.snake.GetLength() === 100 || !main.snake.IsAlive()) {
+			main.ev.SetRestartHandler(function() {
+				main.run()
+			})
+			clearInterval(main.timer)
+		}
+		if (!main.snake.IsAlive()) {
+			main.ui.SetGameOver(main.snake.GetLength())
+		}
+		if (main.snake.GetLength() === 100) {
+			main.ui.Set100()
+		} else {
+			main.Draw()
 		}
 	}, 500)
 }
