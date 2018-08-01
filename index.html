@@ -5,14 +5,13 @@
 	<meta charset='utf-8'>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!-- <link rel='stylesheet' href='snake.css'> -->
-	<title>``Snake'' -- A web game</title>
+	<title>Snake</title>
 
 <style>
 
 body {
 	padding: 10px 0 0 0;
 }
-
 #el_snake_tab {
 	margin-top: 80px;
 	width: 300px;
@@ -24,47 +23,81 @@ body {
 	text-align: center;
 	line-height: 100%;
 }
-
 #info {
 	text-align: center;
 	line-height: 2em;
 }
-
 #dir_ctrl {
 	width: 180px;
 	height: 180px;
 	margin: 0 auto;
 	text-align: center;
-} .dir-ctrl-button {
+} #dir_ctrl td {
 	font-size: 16px;
 	width: 33.3%;
+	border-radius: 10px;
+}
+.td-food {
+	border-radius: 3px;
+}
+</style>
+
+<style>
+/* daylight color */
+.day-night-switch-button {
+	background: #eee
+} .dir-ctrl-button {
 	background: black;
 	color: white;
-	border-radius: 10px;
 } .dir-ctrl-button:active {
 	background: white;
 	color: black;
 }
-
 .td-empty {
 	background: white;
 } .td-snake {
 	background: black;
 } .td-food {
-	border-radius: 3px;
 	background: red;
 }
-
 .paused .td-empty {
 	background: #ccc;
 } .grey .td-snake {
 	background: grey;
 }
+</style>
 
+<style>
+/* nightmode color */
+.night {
+	background: #334;
+	color: #eef;
+}
+.night .day-night-switch-button {
+	background: #445;
+} .night .dir-ctrl-button {
+	background: #eef;
+	color: #334;
+} .night .dir-ctrl-button:active {
+	background: #334;
+	color: #eef;
+}
+.night .td-empty {
+	background: #334;
+} .night .td-snake {
+	background: #eef;
+} .night .td-food {
+	background: #ff0;
+}
+.night .paused .td-empty {
+	background: #779;
+} .night .grey .td-snake {
+	background: #779;
+}
 </style>
 </head>
 
-<body>
+<body class='night'>
 <table id='el_snake_tab'>
 
 <tr> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
@@ -96,7 +129,8 @@ body {
 
 <tr> <td></td> <td  class='dir-ctrl-button' id='dir_ctrl_up'>&uarr;</td> <td></td> </tr>
 <tr> <td class='dir-ctrl-button' id='dir_ctrl_left'>&larr;</td> <td id='dir_ctrl_middle'></td> <td class='dir-ctrl-button' id='dir_ctrl_right'>&rarr;</td> </tr>
-<tr> <td></td> <td class='dir-ctrl-button' id='dir_ctrl_down'>&darr;</td> <td></td> </tr>
+<tr> <td></td> <td class='dir-ctrl-button' id='dir_ctrl_down'>&darr;</td> <td class='day-night-switch-button' id='day_night_switch'></td> </tr>
+
 </table>
 </body>
 
@@ -211,13 +245,18 @@ Ui.prototype.TogglePause = function() {
 	this.snaketab.classList.toggle("paused")
 }
 
+Ui.prototype.ToggleNightMode = function() {
+	document.body.classList.toggle("night")
+}
+
 Ui.prototype.Unset = function() {
 	this.infodiv.innerHTML =
 		"To <b>PAUSE</b>, press space or the screen above (&uarr;)"
 	this.snaketab.className = ""
 }
 
-Ui.prototype.SetGameOver = function() {
+Ui.prototype.SetGameOver = function(score) {
+	document.title = "Your score is " + score + " | " + document.title
 	this.infodiv.innerHTML =
 		"To <b>RESTART</b>, press space or the screen above (&uarr;)"
 	this.snaketab.classList.add("grey")
@@ -273,13 +312,20 @@ EvBinder.prototype.SetDirectionHandler = function(fn) {
 	this.dirfn = fn
 }
 
-EvBinder.prototype.UnbindEvents = function(evname) {
-	if (evname === 'onkeydown') {
-		document.body.onkeydown = undefined;
-		return
+EvBinder.prototype.BindClickTouchEvent = function(id, fn) {
+	var evb = this;
+	var el = document.getElementById(id)
+
+	el.ontouchstart = function() {
+		evb.touchable = true;
+		fn.call(this)
 	}
-	for (var i = 0; i < this.els.length; i += 1) {
-		document.getElementById(this.els[i])[evname] = undefined;
+	el.onclick = function() {
+		if (evb.touchable === true) {
+			el.onclick = undefined
+			return
+		}
+		fn.call(this)
 	}
 }
 
@@ -312,45 +358,17 @@ EvBinder.prototype.bind = function() {
 	}
 
 	for (var i = 1; i < evb.els.length; i += 1) {
-		document.getElementById(evb.els[i]).ontouchstart = function() {
-			evb.touchable = true;
+		evb.BindClickTouchEvent(evb.els[i], function() {
 			evb.dirfn(evb.emap[this.id])
-		}
-		document.getElementById(evb.els[i]).onclick = function() {
-			if (evb.touchable === true) {
-				evb.UnbindEvents('onclick')
-				return
-			}
-			evb.dirfn(evb.emap[this.id])
-		}
+		})
 	}
-
-	document.getElementById(evb.els[0]).ontouchstart = function() {
-		evb.touchable = true;
-		//evb.UnbindEvents('onclick')
+	evb.BindClickTouchEvent(evb.els[0], function() {
 		if (evb.refn !== undefined) {
-			//debug.innerText += (evb.touchable + "ontouchstart refn ")
 			evb.refn()
 		} else if (evb.pausefn !== undefined) {
-			//debug.innerText += "ontouchstart pausefn "
 			evb.pausefn()
 		}
-	}
-
-	document.getElementById(evb.els[0]).onclick = function() {
-		if (evb.touchable === true) {
-			evb.UnbindEvents('onclick')
-			//debug.innerText += "unbind click events of table. "
-			return
-		}
-		if (evb.refn !== undefined) {
-			//debug.innerText += "onclick refn "
-			evb.refn()
-		} else if (evb.pausefn !== undefined) {
-			//debug.innerText += "onclick pausefn "
-			evb.pausefn()
-		}
-	}
+	})
 }
 
 function Main(snake_module_ctor, ui_module_ctor, ev_module_ctor) {
@@ -362,6 +380,11 @@ function Main(snake_module_ctor, ui_module_ctor, ev_module_ctor) {
 	this.foodc = 0;
 	this.timer = undefined;
 	this.paused = false;
+
+	var main = this;
+	this.ev.BindClickTouchEvent("day_night_switch", function() {
+		main.ui.ToggleNightMode();
+	})
 
 	this.run()
 }
@@ -435,7 +458,7 @@ Main.prototype.run = function() {
 			main.moveSnake()
 			main.Draw()
 			if (!main.snake.IsAlive()) {
-				main.ui.SetGameOver()
+				main.ui.SetGameOver(main.snake.GetLength())
 				main.ev.SetRestartHandler(function() {
 					main.run()
 				})
@@ -447,6 +470,4 @@ Main.prototype.run = function() {
 
 new Main(Snake, Ui, EvBinder)
 
-</script>
-
-</html>
+</script> </html>
