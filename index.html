@@ -97,7 +97,7 @@ body {
 </style>
 </head>
 
-<body class='night'>
+<body>
 <table id='el_snake_tab'>
 
 <tr> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
@@ -316,7 +316,8 @@ EvBinder.prototype.BindClickTouchEvent = function(id, fn) {
 	var evb = this;
 	var el = document.getElementById(id)
 
-	el.ontouchstart = function() {
+	el.ontouchstart = function(e) {
+		e.preventDefault()
 		evb.touchable = true;
 		fn.call(this)
 	}
