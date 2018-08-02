@@ -462,8 +462,9 @@ Main.prototype.run = function() {
 	this.timer = undefined;
 	this.paused = false;
 
-	main.ui.Unset()
 	main.snake.Init()
+	main.ui.Unset()
+	main.Draw()
 	main.ev.Unset()
 	main.setPlayerEvents()
 
