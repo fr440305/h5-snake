@@ -4,7 +4,6 @@
 <head>
 	<meta charset='utf-8'>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<!-- <link rel='stylesheet' href='snake.css'> -->
 	<title>Snake</title>
 
 <style>
@@ -40,9 +39,16 @@ body {
 .td-food {
 	border-radius: 3px;
 }
-</style>
 
-<style>
+/* text */
+#info:after {
+	content: "To PAUSE, press space or the screen above";
+} .paused #info:after {
+	content: "To RUN, press space or the screen above";
+} .died #info:after {
+	content: "To RESTART, press space or the screen above";
+}
+
 /* daylight color */
 .day-night-switch-button {
 	background: #eee
@@ -60,14 +66,13 @@ body {
 } .td-food {
 	background: red;
 }
+
 .paused .td-empty {
 	background: #ccc;
-} .grey .td-snake {
+} .died .td-snake {
 	background: grey;
 }
-</style>
 
-<style>
 /* nightmode color */
 .night {
 	background: #334;
@@ -91,7 +96,7 @@ body {
 }
 .night .paused .td-empty {
 	background: #779;
-} .night .grey .td-snake {
+} .night .died .td-snake {
 	background: #779;
 }
 </style>
@@ -123,8 +128,7 @@ body {
 
 </table>
 
-<!--<div id='debug'></div>-->
-<div id='info'>To <b>PAUSE</b>, press space or the screen above (&uarr;)</div>
+<div id='info'> </div>
 <table id='dir_ctrl'>
 
 <tr> <td></td> <td  class='dir-ctrl-button' id='dir_ctrl_up'>&uarr;</td> <td></td> </tr>
@@ -132,7 +136,6 @@ body {
 <tr> <td></td> <td class='dir-ctrl-button' id='dir_ctrl_down'>&darr;</td> <td class='day-night-switch-button' id='day_night_switch'></td> </tr>
 
 </table>
-</body>
 
 <script>
 function Snake() {
@@ -141,7 +144,7 @@ function Snake() {
 
 Snake.prototype.Init = function() {
 	this.body = []; //body[0] is head, body[len-1] is tail
-	this.d = 'u' // right
+	this.d = 'r' // right
 	this.dmap = {
 		'd': { r: 1,  c: 0  },
 		'u': { r: -1, c: 0  },
@@ -172,9 +175,6 @@ Snake.prototype.SetDirection = function(ch) {
 Snake.prototype.nextHead = function() {
 	var head = this.body[0]
 	var d = this.dmap[this.d]
-	//console.log(head, this.d)
-
-
 	var rr = (head.r + d.r) % 10;
 	var cc = (head.c + d.c) % 10;
 
@@ -195,6 +195,7 @@ Snake.prototype.Move = function() {
 
 Snake.prototype.IsGonnaReach = function(r, c) {
 	var nh = this.nextHead()
+
 	return (r === nh.r) && (c === nh.c)
 }
 
@@ -208,6 +209,7 @@ Snake.prototype.IsAlive = function() {
 			return false;
 		}
 	}
+
 	return true;
 }
 
@@ -230,8 +232,8 @@ Snake.prototype.GetMatrix = function() {
 function Ui() {
 	this.cells = [] // Arr<EL.td>
 	this.classes = ["td-empty", "td-snake", "td-food"]
-	this.snaketab = el_snake_tab // doc.getel.byID
-	this.infodiv = info;
+	this.snaketab = document.getElementById("el_snake_tab");
+	this.score = document.getElementById("dir_ctrl_middle");
 
 	var rows = this.snaketab.rows
 	for (var r = 0; r < rows.length; r += 1) {
@@ -240,9 +242,7 @@ function Ui() {
 }
 
 Ui.prototype.TogglePause = function() {
-	this.infodiv.innerHTML =
-		"To <b>RUN</b>, press space or the screen above (&uarr;)"
-	this.snaketab.classList.toggle("paused")
+	document.body.classList.toggle("paused");
 }
 
 Ui.prototype.ToggleNightMode = function() {
@@ -251,44 +251,38 @@ Ui.prototype.ToggleNightMode = function() {
 
 Ui.prototype.Unset = function() {
 	document.title = "Snake"
-	this.infodiv.innerHTML =
-		"To <b>PAUSE</b>, press space or the screen above (&uarr;)"
-	this.snaketab.className = ""
+	document.body.className = ""
 }
 
 Ui.prototype.SetGameOver = function(score) {
 	document.title = "Your score is " + score + " | Snake";
-	this.infodiv.innerHTML =
-		"To <b>RESTART</b>, press space or the screen above (&uarr;)"
-	this.snaketab.classList.add("grey")
+	document.body.classList.add("died")
 }
 
 Ui.prototype.Set100 = function() {
-	document.title = "Your score is 100 | Snake";
-	this.infodiv.innerHTML =
-		"To <b>RESTART</b>, press space or the screen above (&uarr;)";
+	this.SetGameOver(100);
+	this.ShowScore(100);
 	this.DrawMatrix([
-		[0, 0, 2, 0, 0, 0, 0, 2, 0, 0],
-		[0, 2, 2, 2, 0, 0, 2, 2, 2, 0],
+		[0, 2, 2, 0, 0, 0, 0, 2, 2, 0],
+		[2, 2, 2, 2, 0, 0, 2, 2, 2, 2],
 		[2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
 		[2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
 		[2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
 		[0, 2, 2, 2, 2, 2, 2, 2, 2, 0],
 		[0, 2, 2, 2, 2, 2, 2, 2, 2, 0],
 		[0, 0, 2, 2, 2, 2, 2, 2, 0, 0],
-		[0, 0, 2, 2, 2, 2, 2, 2, 0, 0],
+		[0, 0, 0, 2, 2, 2, 2, 0, 0, 0],
 		[0, 0, 0, 0, 2, 2, 0, 0, 0, 0]
 	])
 }
 
 Ui.prototype.ShowScore = function(score) {
-	dir_ctrl_middle.innerText = score.toString()
+	this.score.innerText = score.toString()
 }
 
 Ui.prototype.DrawMatrix = function(mat) {
 	for (var r = 0; r < mat.length; r += 1) {
 		for (var c = 0; c < mat[r].length; c += 1) {
-			//this.cells[r][c].classList = [this.classes[mat[r][c]]];
 			this.cells[r][c].className = "";
 			this.cells[r][c].classList.add(this.classes[mat[r][c]]);
 		}
@@ -296,14 +290,14 @@ Ui.prototype.DrawMatrix = function(mat) {
 }
 
 function EvBinder() {
-	this.els = [
+	this.els = [ // elements' id
 		"el_snake_tab",
 		"dir_ctrl_up",
 		"dir_ctrl_down",
 		"dir_ctrl_left",
 		"dir_ctrl_right"
 	]
-	this.emap = {
+	this.emap = { // maps id to direction characters
 		"dir_ctrl_up":'u',
 		"dir_ctrl_down":'d',
 		"dir_ctrl_left":'l',
@@ -426,9 +420,6 @@ Main.prototype.setFood = function() {
 	this.foodc = empties[i].c;
 }
 
-Main.prototype.moveSnake = function() {
-}
-
 Main.prototype.Draw = function() {
 	var mat = this.snake.GetMatrix()
 
@@ -499,4 +490,6 @@ Main.prototype.run = function() {
 
 new Main(Snake, Ui, EvBinder)
 
-</script> </html>
+</script>
+</body>
+</html>
