@@ -94,9 +94,9 @@ body {
 } .night .td-food {
 	background: #ff0;
 }
-.night .paused .td-empty {
+.night.paused .td-empty {
 	background: #779;
-} .night .died .td-snake {
+} .night.died .td-snake {
 	background: #779;
 }
 </style>
@@ -331,7 +331,7 @@ EvBinder.prototype.BindClickTouchEvent = function(id, fn) {
 	var evb = this;
 	var el = document.getElementById(id)
 
-	el.ontouchstart = function(e) {
+	el.ontouchstart = function(e) { // TODO: for all like this, use addEventListener to instead
 		e.preventDefault()
 		evb.touchable = true;
 		fn.call(this)
@@ -430,7 +430,7 @@ Main.prototype.Draw = function() {
 	this.ui.ShowScore(this.snake.GetLength())
 }
 
-Main.prototype.setPlayerEvents = function() {
+Main.prototype.bindEvents = function() {
 	var main = this;
 
 	main.ev.SetDirectionHandler(function(dchar) {
@@ -438,10 +438,9 @@ Main.prototype.setPlayerEvents = function() {
 			main.snake.SetDirection(dchar)
 		}
 	})
-
 	main.ev.SetPauseHandler(function() {
-		this.ui.TogglePause()
-		this.paused = !this.paused;
+		main.ui.TogglePause()
+		main.paused = !main.paused;
 	})
 }
 
@@ -456,7 +455,7 @@ Main.prototype.run = function() {
 	main.ui.Unset()
 	main.Draw()
 	main.ev.Unset()
-	main.setPlayerEvents()
+	main.bindEvents()
 
 	main.timer = setInterval(function() {
 		if (main.paused) {
