@@ -251,7 +251,9 @@ Ui.prototype.ToggleNightMode = function() {
 
 Ui.prototype.Unset = function() {
 	document.title = "Snake"
-	document.body.className = ""
+	//document.body.className = "" // this is wrong. Never do this
+	document.body.classList.remove("paused");
+	document.body.classList.remove("died");
 }
 
 Ui.prototype.SetGameOver = function(score) {
@@ -428,11 +430,6 @@ Main.prototype.Draw = function() {
 	this.ui.ShowScore(this.snake.GetLength())
 }
 
-Main.prototype.TogglePause = function() {
-	this.ui.TogglePause()
-	this.paused = !this.paused;
-}
-
 Main.prototype.setPlayerEvents = function() {
 	var main = this;
 
@@ -441,8 +438,10 @@ Main.prototype.setPlayerEvents = function() {
 			main.snake.SetDirection(dchar)
 		}
 	})
+
 	main.ev.SetPauseHandler(function() {
-		main.TogglePause()
+		this.ui.TogglePause()
+		this.paused = !this.paused;
 	})
 }
 
