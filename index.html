@@ -13,15 +13,37 @@ body {
 }
 #el_snake_tab {
 	margin-top: 80px;
+	/*
 	width: 300px;
 	height: 300px;
+	*/
+	display: table;
 	margin: 0 auto;
 	border: 1px solid #aaa;
 	border-radius: 3px;
-} #el_snake_tab td {
-	text-align: center;
-	line-height: 100%;
+} #el_snake_tab>div {
+	display: table-row;
+} #el_snake_tab>div>div {
+	display: table-cell;
+	width: 30px;
+	height: 30px;
+	border: 1px solid white;
 }
+
+#el_snake_tab>div>div.to {
+	border-top: 0;
+}
+#el_snake_tab>div>div.bo {
+	border-bottom: 0;
+}
+#el_snake_tab>div>div.lo {
+	border-left: 0;
+}
+#el_snake_tab>div>div.ro {
+	border-right: 0;
+}
+
+
 #info {
 	text-align: center;
 	line-height: 2em;
@@ -103,8 +125,8 @@ body {
 </head>
 
 <body>
+<!--
 <table id='el_snake_tab'>
-
 <tr> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
 <td> </td> <td> </td> <td> </td> <td> </td> <td> </td> </tr>
 <tr> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
@@ -125,8 +147,21 @@ body {
 <td> </td> <td> </td> <td> </td> <td> </td> <td> </td> </tr>
 <tr> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
 <td> </td> <td> </td> <td> </td> <td> </td> <td> </td> </tr>
-
 </table>
+-->
+
+<div id='el_snake_tab'>
+	<div> <div class='ro bo lo bo'></div><div class='lo bo'></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div class='to ro'></div><div class='lo to'></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+</div>
 
 <div id='info'> </div>
 <table id='dir_ctrl'>
@@ -213,32 +248,101 @@ Snake.prototype.IsAlive = function() {
 	return true;
 }
 
+var SNAKE_BODY = 16;
+var SNAKE_BODY_TOP_OPEN = 8;
+var SNAKE_BODY_BOTTOM_OPEN = 4;
+var SNAKE_BODY_LEFT_OPEN = 2;
+var SNAKE_BODY_RIGHT_OPEN = 1;
+
 Snake.prototype.GetMatrix = function() {
 	var mat = []
 	var r = 0, c = 0;
+	var nr = 0, nc = 0;
+	var pr = 0, pc = 0;
+	var openSide = 0;
 
 	for (var r = 0; r < 10; r += 1) {
 		mat.push([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 	}
 	for (var i = 0; i < this.body.length; i += 1) {
+		openSide = 0;
 		r = this.body[i].r;
 		c = this.body[i].c;
-		mat[r][c] = 1;
+		if (i !== 0) { // previous body i-1 exists
+			pr = this.body[i-1].r;
+			pc = this.body[i-1].c;
+			if (pr < r) { // up
+				openSide |= SNAKE_BODY_TOP_OPEN;
+			} else if (pr > r) {
+				openSide |= SNAKE_BODY_BOTTOM_OPEN;
+			} else {
+				if (pc < c) {
+					openSide |= SNAKE_BODY_LEFT_OPEN;
+				} else {
+					openSide |= SNAKE_BODY_RIGHT_OPEN;
+				}
+			}
+		}
+		if (i !== this.body.length - 1) { // next body i+1 exists
+			nr = this.body[i+1].r;
+			nc = this.body[i+1].c;
+			if (nr < r) {
+				openSide |= SNAKE_BODY_TOP_OPEN;
+			} else if (nr > r) {
+				openSide |= SNAKE_BODY_BOTTOM_OPEN;
+			} else {
+				if (nc < c) {
+					openSide |= SNAKE_BODY_LEFT_OPEN;
+				} else {
+					openSide |= SNAKE_BODY_RIGHT_OPEN;
+				}
+			}
+		}
+		mat[r][c] = SNAKE_BODY | openSide;
 	}
 
 	return mat
 }
 
 function Ui() {
-	this.cells = [] // Arr<EL.td>
-	this.classes = ["td-empty", "td-snake", "td-food"]
-	this.snaketab = document.getElementById("el_snake_tab");
+	this.cells = [] // [][](window.HTMLElement)
+	//this.classes = ["td-empty", "td-snake", "td-food"]
 	this.score = document.getElementById("dir_ctrl_middle");
 
-	var rows = this.snaketab.rows
-	for (var r = 0; r < rows.length; r += 1) {
-		 this.cells.push(rows[r].cells)
+	var snaketab = document.getElementById("el_snake_tab");
+	for (var r = 0; r < snaketab.children.length; r += 1) {
+		this.cells[r] = snaketab.children[r].children;
 	}
+
+	//console.log(this.cells);
+}
+
+Ui.prototype.classes = function(n) {
+	if (n === 0) {
+		return ['td-empty'];
+	} else if (n === 2) {
+		return ['td-food'];
+	}
+
+	ret = [];
+	if (n & SNAKE_BODY) {
+		ret.push('td-snake');
+
+		if (n & SNAKE_BODY_TOP_OPEN) {
+			ret.push('to');
+		}
+		if (n & SNAKE_BODY_BOTTOM_OPEN) {
+			ret.push('bo');
+		}
+		if (n & SNAKE_BODY_LEFT_OPEN) {
+			ret.push('lo');
+		}
+		if (n & SNAKE_BODY_RIGHT_OPEN) {
+			ret.push('ro');
+		}
+	}
+
+	return ret;
 }
 
 Ui.prototype.TogglePause = function() {
@@ -286,7 +390,10 @@ Ui.prototype.DrawMatrix = function(mat) {
 	for (var r = 0; r < mat.length; r += 1) {
 		for (var c = 0; c < mat[r].length; c += 1) {
 			this.cells[r][c].className = "";
-			this.cells[r][c].classList.add(this.classes[mat[r][c]]);
+			//this.cells[r][c].classList.add(this.classes[mat[r][c]]);
+			//console.log(mat[r][c]);
+			var classes = this.classes(mat[r][c]);
+			this.cells[r][c].classList.add(...classes);
 		}
 	}
 }
