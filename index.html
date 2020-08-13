@@ -27,21 +27,9 @@ body {
 	display: table-cell;
 	width: 30px;
 	height: 30px;
-	border: 1px solid white;
+	border: 1px solid;
 }
 
-#el_snake_tab>div>div.to {
-	border-top: 0;
-}
-#el_snake_tab>div>div.bo {
-	border-bottom: 0;
-}
-#el_snake_tab>div>div.lo {
-	border-left: 0;
-}
-#el_snake_tab>div>div.ro {
-	border-right: 0;
-}
 
 
 #info {
@@ -95,6 +83,22 @@ body {
 	background: grey;
 }
 
+#el_snake_tab>div>div {
+	border-color: white;
+}
+
+#el_snake_tab>div>div.to {
+	border-top-color: black;
+}
+#el_snake_tab>div>div.bo {
+	border-bottom-color: black;
+}
+#el_snake_tab>div>div.lo {
+	border-left-color: black;
+}
+#el_snake_tab>div>div.ro {
+	border-right-color: black;
+}
 /* nightmode color */
 .night {
 	background: #334;
@@ -120,6 +124,22 @@ body {
 	background: #779;
 } .night.died .td-snake {
 	background: #779;
+}
+.night #el_snake_tab>div>div {
+	border-color: #334;
+}
+
+.night #el_snake_tab>div>div.to {
+	border-top-color: #eef;
+}
+.night #el_snake_tab>div>div.bo {
+	border-bottom-color: #eef;
+}
+.night #el_snake_tab>div>div.lo {
+	border-left-color: #eef;
+}
+.night #el_snake_tab>div>div.ro {
+	border-right-color: #eef;
 }
 </style>
 </head>
