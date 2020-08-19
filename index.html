@@ -30,6 +30,41 @@ body {
 	border: 1px solid;
 }
 
+#el_snake_tab>div>div.to::after {
+	content: "";
+	position: absolute;
+	width: 32px;
+	height: 30px;
+	margin: 0;
+	padding: 0;
+	transform: rotate(90deg) translate(-1px, 1px);
+}
+#el_snake_tab>div>div.bo::after {
+	content: "";
+	position: absolute;
+	width: 32px;
+	height: 30px;
+	margin: 0;
+	padding: 0;
+	transform: rotate(90deg) translate(1px, 1px);
+}
+#el_snake_tab>div>div.lo::after {
+	content: "";
+	position: absolute;
+	width: 32px;
+	height: 30px;
+	margin: 0;
+	padding: 0;
+	transform: translate(-2px, 0);
+}
+#el_snake_tab>div>div.ro::after {
+	content: "";
+	position: absolute;
+	width: 32px;
+	height: 30px;
+	margin: 0;
+	padding: 0;
+}
 
 
 #info {
@@ -87,17 +122,17 @@ body {
 	border-color: white;
 }
 
-#el_snake_tab>div>div.to {
-	border-top-color: black;
+#el_snake_tab>div>div.to::after {
+	background: black;
 }
-#el_snake_tab>div>div.bo {
-	border-bottom-color: black;
+#el_snake_tab>div>div.bo::after {
+	background: black;
 }
-#el_snake_tab>div>div.lo {
-	border-left-color: black;
+#el_snake_tab>div>div.lo::after {
+	background: black;
 }
-#el_snake_tab>div>div.ro {
-	border-right-color: black;
+#el_snake_tab>div>div.ro::after {
+	background: black;
 }
 /* nightmode color */
 .night {
@@ -129,17 +164,17 @@ body {
 	border-color: #334;
 }
 
-.night #el_snake_tab>div>div.to {
-	border-top-color: #eef;
+.night #el_snake_tab>div>div.to::after {
+	background: #eef;
 }
-.night #el_snake_tab>div>div.bo {
-	border-bottom-color: #eef;
+.night #el_snake_tab>div>div.bo::after {
+	background: #eef;
 }
-.night #el_snake_tab>div>div.lo {
-	border-left-color: #eef;
+.night #el_snake_tab>div>div.lo::after {
+	background: #eef;
 }
-.night #el_snake_tab>div>div.ro {
-	border-right-color: #eef;
+.night #el_snake_tab>div>div.ro::after {
+	background: #eef;
 }
 </style>
 </head>
@@ -284,42 +319,27 @@ Snake.prototype.GetMatrix = function() {
 	for (var r = 0; r < 10; r += 1) {
 		mat.push([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 	}
-	for (var i = 0; i < this.body.length; i += 1) {
+	for (var i = 0; i < this.body.length-1; i += 1) {
 		openSide = 0;
 		r = this.body[i].r;
 		c = this.body[i].c;
-		if (i !== 0) { // previous body i-1 exists
-			pr = this.body[i-1].r;
-			pc = this.body[i-1].c;
-			if (pr < r) { // up
-				openSide |= SNAKE_BODY_TOP_OPEN;
-			} else if (pr > r) {
-				openSide |= SNAKE_BODY_BOTTOM_OPEN;
+		nr = this.body[i+1].r;
+		nc = this.body[i+1].c;
+		if (nr < r) {
+			openSide |= SNAKE_BODY_TOP_OPEN;
+		} else if (nr > r) {
+			openSide |= SNAKE_BODY_BOTTOM_OPEN;
+		} else {
+			if (nc < c) {
+				openSide |= SNAKE_BODY_LEFT_OPEN;
 			} else {
-				if (pc < c) {
-					openSide |= SNAKE_BODY_LEFT_OPEN;
-				} else {
-					openSide |= SNAKE_BODY_RIGHT_OPEN;
-				}
-			}
-		}
-		if (i !== this.body.length - 1) { // next body i+1 exists
-			nr = this.body[i+1].r;
-			nc = this.body[i+1].c;
-			if (nr < r) {
-				openSide |= SNAKE_BODY_TOP_OPEN;
-			} else if (nr > r) {
-				openSide |= SNAKE_BODY_BOTTOM_OPEN;
-			} else {
-				if (nc < c) {
-					openSide |= SNAKE_BODY_LEFT_OPEN;
-				} else {
-					openSide |= SNAKE_BODY_RIGHT_OPEN;
-				}
+				openSide |= SNAKE_BODY_RIGHT_OPEN;
 			}
 		}
 		mat[r][c] = SNAKE_BODY | openSide;
 	}
+	var tail = this.body[this.body.length-1];
+	mat[tail.r][tail.c] = SNAKE_BODY;
 
 	return mat
 }
