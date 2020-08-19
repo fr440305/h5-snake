@@ -1,0 +1,389 @@
+<!doctype html>
+
+<html>
+<head>
+	<meta charset='utf-8'>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Snake</title>
+
+<style>
+
+body {
+	padding: 10px 0 0 0;
+}
+#el_snake_tab {
+	margin-top: 80px;
+	display: table;
+	margin: 0 auto;
+	border: 1px solid #aaa;
+	border-radius: 3px;
+} #el_snake_tab>div {
+	display: table-row;
+} #el_snake_tab>div>div {
+	display: table-cell;
+	width: 30px;
+	height: 30px;
+	border: 1px solid;
+}
+
+#info {
+	text-align: center;
+	line-height: 2em;
+}
+#dir_ctrl {
+	width: 180px;
+	height: 180px;
+	margin: 0 auto;
+	text-align: center;
+} #dir_ctrl td {
+	font-size: 16px;
+	width: 33.3%;
+	border-radius: 10px;
+}
+.td-food {
+	border-radius: 3px;
+}
+
+/* text */
+#info:after {
+	content: "To PAUSE, press space or the screen above";
+} .paused #info:after {
+	content: "To RUN, press space or the screen above";
+} .died #info:after {
+	content: "To RESTART, press space or the screen above";
+}
+
+/* daylight color */
+.day-night-switch-button {
+	background: #eee
+} .dir-ctrl-button {
+	background: black;
+	color: white;
+} .dir-ctrl-button:active {
+	background: white;
+	color: black;
+}
+.td-empty {
+	background: white;
+} .td-snake {
+	background: black;
+} .td-food {
+	background: red;
+}
+
+.paused .td-empty {
+	background: #ccc;
+} .died .td-snake {
+	background: grey;
+}
+
+#el_snake_tab>div>div {
+	border-color: white;
+}
+
+#el_snake_tab>div>div.to {
+	border-top-color: black;
+}
+#el_snake_tab>div>div.bo {
+	border-bottom-color: black;
+}
+#el_snake_tab>div>div.lo {
+	border-left-color: black;
+}
+#el_snake_tab>div>div.ro {
+	border-right-color: black;
+}
+/* nightmode color */
+.night {
+	background: #334;
+	color: #eef;
+}
+.night .day-night-switch-button {
+	background: #445;
+} .night .dir-ctrl-button {
+	background: #eef;
+	color: #334;
+} .night .dir-ctrl-button:active {
+	background: #334;
+	color: #eef;
+}
+.night .td-empty {
+	background: #334;
+} .night .td-snake {
+	background: #eef;
+} .night .td-food {
+	background: #ff0;
+}
+.night.paused .td-empty {
+	background: #779;
+} .night.died .td-snake {
+	background: #779;
+}
+.night #el_snake_tab>div>div {
+	border-color: #334;
+}
+
+.night #el_snake_tab>div>div.to {
+	border-top-color: #eef;
+}
+.night #el_snake_tab>div>div.bo {
+	border-bottom-color: #eef;
+}
+.night #el_snake_tab>div>div.lo {
+	border-left-color: #eef;
+}
+.night #el_snake_tab>div>div.ro {
+	border-right-color: #eef;
+}
+</style>
+</head>
+
+<body>
+
+<div id='el_snake_tab'>
+	<div> <div class='ro bo lo bo'></div><div class='lo bo'></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div class='to ro'></div><div class='lo to'></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+	<div> <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div> </div>
+</div>
+
+<div id='info'> </div>
+<table id='dir_ctrl'>
+
+<tr> <td></td> <td  class='dir-ctrl-button' id='dir_ctrl_up'>W</td> <td></td> </tr>
+<tr> <td class='dir-ctrl-button' id='dir_ctrl_left'>A</td> <td id='dir_ctrl_middle'></td> <td class='dir-ctrl-button' id='dir_ctrl_right'>D</td> </tr>
+<tr> <td></td> <td class='dir-ctrl-button' id='dir_ctrl_down'>S</td> <td class='day-night-switch-button' id='day_night_switch'></td> </tr>
+
+</table>
+
+<script>
+"use strict";
+
+function Matrix(size) {
+	this.size = size;
+	this.m = [];
+
+	for (let r = 0; r < size; r++) {
+		this.m[r] = [];
+		for (let c = 0; c < size; c++) {
+			this.m[r][c] = {'type': 'blank'};
+		}
+	}
+}
+
+Matrix.prototype.setCell = function(r, c, type, openingDirection) {
+	this.m[r][c]['type'] = type;
+	if (type === 'snake') {
+		this.m[r][c]['openingDirection'] = openingDirection;
+	}
+}
+
+// @param callback func(int, int, dict{'type': string, 'openingDirection': string | undefined}) boolean
+Matrix.prototype.forEachCell = function(callback) {
+	for (let r = 0; r < this.size; r++) {
+		for (let c = 0; c < this.size; c++) {
+			if (!callback(r, c, this.m[r][c])) {
+				return;
+			}
+		}
+	}
+}
+
+function Snake(matrixSize) {
+	this.matrixSize = matrixSize;
+	this.body = null;
+	this.direction = null;
+
+	this.reset();
+}
+
+Snake.prototype.reset = function() {
+	this.body = [
+		{r: 0, c: 1}, // head
+		{r: 0, c: 0}  // tail
+	];
+	this.direction = 'r'; // right
+}
+
+Snake.prototype.getLength = function() {
+	return this.body.length;
+}
+
+Snake.prototype.setDirection = function(ch) {
+	const oppositeOf = {
+		'l': 'r',
+		'r': 'l',
+		'u': 'd',
+		'd': 'u'
+	};
+	if (ch !== oppositeOf[this.direction]) {
+		this.direction = ch;
+	}
+}
+
+Snake.prototype._getNextHead = function() {
+	const head = thid.body[0];
+	const d = {
+		'd': {r:  1, c:  0 },
+		'u': {r: -1, c:  0 },
+		'l': {r:  0, c: -1 },
+		'r': {r:  0, c:  1 }
+	}[this.direction];
+	const nextR = (head.r + d.r) % this.matrixSize;
+	const nextC = (head.c + d.c) % this.matrixSize;
+	
+	if (nextR < 0) {
+		nextR += this.matrixSize;
+	}
+	if (nextC < 0) {
+		nextC += this.matrixSize;
+	}
+
+	return {r: nextR, c: nextC};
+}
+
+Snake.prototype.grow = function() {
+	this.body.unshift(this._getNextHead());
+}
+
+Snake.prototype.move = function() {
+	this.grow();
+	this.body.pop();
+}
+
+Snake.prototype.isNextHeadAt = function(r, c) {
+	const nextHead = this._getNextHead();
+
+	return (r === nextHead.r) && (c === nextHead.c);
+}
+
+Snake.prototype.isAlive = function() {
+	const r0  = this.body[0].r;
+	const c0  = this.body[0].c;
+	const len = this.getLength();
+
+	for (let i = 0; i < len; i++) {
+		let r = this.body[i].r;
+		let c = this.body[i].c;
+		if (r === r0 && c === c0) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+Snake.prototype.isWon = function() {
+	return this.getLength() === this.matrixSize * this.matrixSize;
+}
+
+Snake.prototype.writeToMatrix = function(mat) {
+	const len = this.getLength();
+
+	for (let i = 0; i < len-1; i++) {
+		const r = this.body[i].r;
+		const c = this.body[i].c;
+		const nextR = this.body[i+1].r;
+		const nextC = this.body[i+1].c;
+		const openingDirection = {
+			'-1': {           '0': 'u'         },
+			'0' : {'-1': 'l',          '1': 'r'},
+			'1' : {           '0': 'd'         }
+		}[(nextR - r).toString()][(nextC - c).toString()];
+		mat.setCell(r, c, 'snake', openingDirection);
+	}
+
+	return mat;
+}
+
+Snake.prototype.serialize = function() {
+	return {
+		"body": this.body,
+		"direction": this.direction
+	};
+}
+
+Snake.prototype.deserialize = function(s) {
+	return this;
+}
+
+function GameState(snakeConstructor) {
+	this.foodPosition = {r: 1, c: 1}; // dummy
+	this.isPaused = true;
+	this.isStarted = false;
+
+	this.snake = new snakeConstructor();
+}
+
+GameState.prototype.setFoodPositionRandom = function() {
+}
+
+GameState.prototype.serialize = function() {
+	return {
+		"isPaused": this.isPaused,
+		"foodPosition": {
+			"r": this.foodPosition.r,
+			"c": this.foodPosition.c
+		},
+		"snakeState": this.snake.serialize()
+	};
+}
+
+GameState.prototype.deserialize = function(s) {
+	return this;
+}
+
+const GAME_EVENTS = [
+	"player:start",
+	"palyer:toggle_pause",
+	"player:key_push/u",
+	"player:key_push/d",
+	"player:key_push/l",
+	"player:key_push/r",
+	"player:key_release/u",
+	"player:key_release/d",
+	"player:key_release/l",
+	"player:key_release/r",
+];
+
+function GameEvent() {
+}
+
+function EventHub() {
+}
+
+// DOMController
+function StateRenderer() {
+}
+
+StateRenderer.prototype.renderGameState = function(st) {
+}
+
+function GameMachine() {
+}
+
+GameMachine.prototype.config = function(conf) {
+}
+
+GameMachine.prototype.run = function() {
+}
+
+// == app ==
+
+new GameMachine(GameState, EventHub, Renderer).config({
+	"elapsed"       : 1000,
+	"elapseGradient": 10,
+	"matrixSize"    : 8
+}).run();
+
+</script>
+
+
+</body>
+</html>
