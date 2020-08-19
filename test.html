@@ -1,0 +1,39 @@
+<!doctype html>
+
+<html>
+	<meta charset='utf8'>
+<style>
+
+.div-table {
+	dosplay: table;
+}
+
+.div-table>div {
+	display: table-row;
+}
+.div-table>div>div {
+	background: red;
+	width: 30px;
+	height: 30px;
+	border: solid 2px white;
+	display: table-cell;
+}
+
+.div-table>div>div::after {
+	content: "";
+	position: absolute;
+	width: 34px;
+	height: 30px;
+	margin: 0;
+	padding: 0;
+	background: black;
+	transform: rotate(90deg) translate(-2px, 2px);
+}
+</style>
+
+	<div class='div-table'>
+		<div> <div> </div> <div> </div> </div>
+		<div> <div> </div> <div> </div> </div>
+	</div>
+</html>
+
